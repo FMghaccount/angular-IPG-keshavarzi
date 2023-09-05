@@ -16,13 +16,6 @@ export const LANDING_PAGE_ROUTES: Routes = [
             (module) => module.LandingComponent
           ),
       },
-      {
-        path: 'payment',
-        loadComponent: () =>
-          import('./payment/payment.component').then(
-            (module) => module.PaymentComponent
-          ),
-      },
     ],
   },
 ];

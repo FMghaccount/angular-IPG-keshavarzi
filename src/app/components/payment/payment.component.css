@@ -26,6 +26,7 @@ input.ng-invalid.ng-touched {
 .keypad .container {
   width: 35%;
   margin: auto;
+  margin-top: 125px !important;
 }
 
 [disabled] {
