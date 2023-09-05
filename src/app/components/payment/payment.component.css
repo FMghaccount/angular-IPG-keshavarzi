@@ -47,3 +47,7 @@ input.ng-invalid.ng-touched {
   text-align: center;
   font-size: 4rem;
 }
+
+app-loading {
+  text-align: center;
+}

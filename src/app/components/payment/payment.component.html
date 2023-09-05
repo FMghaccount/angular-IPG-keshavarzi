@@ -3,7 +3,26 @@
     <div class="card p-3 mt-3">
       <h5 class="d-block text-center">پرداخت اینترنتی</h5>
     </div>
-    <div class="card d-flex flex-column justify-content-between p-3 mt-3">
+    <div
+      *ngIf="orderId.length <= 0 && isLoading === true"
+      class="container-fluid container-lg mb-5 mt-5"
+    >
+      <div class="row justify-content-center align-items-center">
+        <app-loading></app-loading>
+      </div>
+    </div>
+    <div
+      *ngIf="orderId.length === 0 && isLoading !== true"
+      class="card p-3 mt-4 border border-danger bg-danger-subtle"
+    >
+      <p class="d-block text-center mb-0">
+        شماره ارجاع توسط سایت پذیرنده ارسال نشده است
+      </p>
+    </div>
+    <div
+      *ngIf="orderId.length > 0"
+      class="card d-flex flex-column justify-content-between p-3 mt-3"
+    >
       <div
         class="d-flex gap-4 flex-column flex-md-row align-items-center m-auto justify-content-center justify-content-md-start"
       >
@@ -35,14 +54,17 @@
       <div
         class="d-flex flex-column mt-4 rounded-1 border-top py-3 px-3 bg-success-subtle flex-md-row justify-content-center justify-content-md-between"
       >
-      <div></div>
-      <div class="d-flex flex-row justify-content-between gap-3">
-        <div><span>مبلغ پرداخت: </span></div>
-        <div><span class="text-success"> 1400 تومان </span></div>
-      </div>
+        <div></div>
+        <div class="d-flex flex-row justify-content-between gap-3">
+          <div><span>مبلغ پرداخت: </span></div>
+          <div>
+            <span class="text-success"> {{ order?.cart.price }} تومان </span>
+          </div>
+        </div>
       </div>
     </div>
     <div
+      *ngIf="orderId.length > 0"
       class="card p-3 mt-3 d-flex justify-content-between flex-column flex-md-row mb-3"
     >
       <div class="form">
@@ -61,7 +83,10 @@
               #cartNumberField="ngModel"
               [(ngModel)]="cartNumber"
             />
-            <p class="text-danger mt-1" *ngIf="!cartNumberField.valid && cartNumberField.touched">
+            <p
+              class="text-danger mt-1"
+              *ngIf="!cartNumberField.valid && cartNumberField.touched"
+            >
               شماره کارت را وارد کنید. از 1-9 و "-"
             </p>
             <label class="form-label mt-4" for="cartCVV2">CVV2</label>
@@ -75,7 +100,10 @@
               #cartCVV2Field="ngModel"
               [(ngModel)]="cartCVV2"
             />
-            <p class="text-danger mt-1" *ngIf="!cartCVV2Field.valid && cartCVV2Field.touched">
+            <p
+              class="text-danger mt-1"
+              *ngIf="!cartCVV2Field.valid && cartCVV2Field.touched"
+            >
               شماره CVV2 را وارد کنید
             </p>
             <div class="d-flex flex-column flex-md-row mt-2 gap-3">
@@ -98,7 +126,10 @@
                 />
                 <p
                   class="text-danger mt-1"
-                  *ngIf="!cartExpirationMonthField.valid && cartExpirationMonthField.touched"
+                  *ngIf="
+                    !cartExpirationMonthField.valid &&
+                    cartExpirationMonthField.touched
+                  "
                 >
                   ماه انقضا را وارد کنید
                 </p>
@@ -122,7 +153,10 @@
                 />
                 <p
                   class="text-danger mt-1"
-                  *ngIf="!cartExpirationYearField.valid && cartExpirationYearField.touched"
+                  *ngIf="
+                    !cartExpirationYearField.valid &&
+                    cartExpirationYearField.touched
+                  "
                 >
                   سال انقضا را وارد کنید
                 </p>
@@ -134,7 +168,9 @@
               <label class="form-label mt-3" for="username"
                 >رمز یکبار مصرف</label
               >
-              <div class="password d-flex w-100  flex-fill flex-column flex-md-row mt-2 gap-3">
+              <div
+                class="password d-flex w-100 flex-fill flex-column flex-md-row mt-2 gap-3"
+              >
                 <input
                   type="password"
                   id="cartPassword"
@@ -144,7 +180,11 @@
                   #cartPasswordField="ngModel"
                   [(ngModel)]="cartPassword"
                 />
-                <button (click)="getPassword()" type="button" class="flex-fill w-100 col-7 btn btn-primary">
+                <button
+                  (click)="getPassword()"
+                  type="button"
+                  class="flex-fill w-100 col-7 btn btn-primary"
+                >
                   دریافت رمز
                 </button>
               </div>
@@ -158,19 +198,19 @@
           </div>
           <div class="captcha">
             <div class="captcha-chars">
-              <p>{{captchaChar}}</p>
+              <p>{{ captchaChar }}</p>
             </div>
             <div class="captcha-input">
               <input
-              type="text"
-              id="captcha"
-              class="form-control"
-              name="captcha"
-              maxlength="6"
-              required
-              #cartNumberField="ngModel"
-              [(ngModel)]="captcha"
-            />
+                type="text"
+                id="captcha"
+                class="form-control"
+                name="captcha"
+                maxlength="6"
+                required
+                #cartNumberField="ngModel"
+                [(ngModel)]="captcha"
+              />
             </div>
           </div>
           <button

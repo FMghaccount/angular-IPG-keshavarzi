@@ -1,37 +1,44 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, AfterContentInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgForm } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { OrderService } from 'src/app/shared/services/order.service';
+import { Subscription, map } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment.development';
+import { Order } from 'src/app/shared/models/order.model';
+import { LoadingComponent } from 'src/app/shared/components/loading/loading.component';
 
 @Component({
   selector: 'app-payment',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoadingComponent],
   templateUrl: './payment.component.html',
   styleUrls: ['./payment.component.css'],
 })
 export class PaymentComponent {
+  order: Order;
+  orderId: string = '';
+  orderIDSub: Subscription;
   @ViewChild('form') formData: NgForm;
   cartNumber: string = '1234-5678-1234-5678';
   cartCVV2: string = '1654';
   cartExpirationYear: string = '04';
   cartExpirationMonth: string = '02';
   cartPassword: number = null;
-  cartDetail = {
-    cartNumber: '',
-    cartCVV2: '',
-    cartExpirationYear: '',
-    cartExpirationMonth: '',
-    cartPassword: null,
-  };
-  submitted = false;
   keyPadChar: string;
   captchaChar: string;
   keyPad: String;
   captcha: String;
   rand: number;
+  isLoading: boolean = false;
+  timeoutSub;
+  enteredWrongPassword: number = -1;
+
+  constructor(private orderService: OrderService, private http: HttpClient) {}
 
   ngOnInit() {
+    this.isLoading = true;
     this.keyPadChar = '0123456789';
     this.keyPad = '';
     for (let i = 0; this.keyPad.length < 10; i++) {
@@ -49,6 +56,34 @@ export class PaymentComponent {
       counter += 1;
     }
     this.captchaChar = result;
+    this.orderIDSub = this.orderService.orderId_Subject
+      .pipe(
+        map((id) => {
+          this.isLoading = true;
+          return id;
+        })
+      )
+      .subscribe((id) => {
+        this.orderId = id;
+        console.log(id);
+        console.log(this.orderId);
+        this.getOrder(this.orderId);
+        console.log(this.order);
+      });
+    this.timeoutSub = setTimeout(() => {
+      this.isLoading = false;
+    }, 4000);
+  }
+
+  getOrder(id: string) {
+    this.http
+      .get<Order>(environment.firebaseApiUrl + `orders/${id}.json`, {
+        observe: 'response',
+      })
+      .subscribe((response) => {
+        console.log(response.body);
+        this.order = response.body;
+      });
   }
 
   getPassword() {
@@ -87,15 +122,57 @@ export class PaymentComponent {
       this.formData.value.cartPassword !== this.cartPassword ||
       this.formData.value.cartCVV2 !== this.cartCVV2
     ) {
-      this.formData.controls['captcha'].reset();
-      this.formData.controls['cartPassword'].reset();
-      this.formData.controls['cartCVV2'].reset();
-      alert('مقادیر خواسته شده را به درستی وارد کنید');
-      return;
+      if (this.enteredWrongPassword < 2) {
+        this.formData.controls['captcha'].reset();
+        this.formData.controls['cartPassword'].reset();
+        this.formData.controls['cartCVV2'].reset();
+        this.enteredWrongPassword += 1;
+        alert('مقادیر خواسته شده را به درستی وارد کنید');
+        return;
+      } else {
+        this.http
+          .patch(
+            environment.firebaseApiUrl + `orders/${this.orderId}.json`,
+            {
+              refId: crypto.randomUUID(),
+            },
+            {
+              observe: 'response',
+            }
+          )
+          .subscribe((response) => {
+            window.location.href = `http://localhost:4200/ref?ok=false&refID=${response.body['refId']}`;
+          });
+      }
     }
 
-    // this.cartDetail.cartPassword = this.formData.value.cartPassword;
+    this.http
+      .patch(
+        environment.firebaseApiUrl + `orders/${this.orderId}.json`,
+        {
+          isPaid: true,
+          cart: {
+            id: this.order.cart['id'],
+            isPaid: true,
+            amount: this.order.cart['amount'],
+            price: this.order.cart['price'],
+            expirationDate: this.order.cart['expirationDate'],
+            items: this.order.cart['items'],
+          },
+          refId: crypto.randomUUID(),
+        },
+        {
+          observe: 'response',
+        }
+      )
+      .subscribe((response) => {
+        window.location.href = `http://localhost:4200/ref?ok=${response.ok}&refID=${response.body['refId']}`;
+      });
+  }
 
-    // this.formData.reset();
+  ngOnDestroy() {
+    this.isLoading = false;
+    if (this.timeoutSub) clearTimeout(this.timeoutSub);
+    if (this.orderIDSub) this.orderIDSub.unsubscribe();
   }
 }
