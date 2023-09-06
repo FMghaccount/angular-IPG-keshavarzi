@@ -77,7 +77,7 @@ export class PaymentComponent {
 
   getOrder(id: string) {
     this.http
-      .get<Order>(environment.firebaseApiUrl + `orders/${id}.json`, {
+      .get<Order>(process.env.NG_APP_FIREBASEAPIURL + `orders/${id}.json`, {
         observe: 'response',
       })
       .subscribe((response) => {
@@ -132,7 +132,7 @@ export class PaymentComponent {
       } else {
         this.http
           .patch(
-            environment.firebaseApiUrl + `orders/${this.orderId}.json`,
+            process.env.NG_APP_FIREBASEAPIURL + `orders/${this.orderId}.json`,
             {
               refId: crypto.randomUUID(),
             },
@@ -148,7 +148,7 @@ export class PaymentComponent {
 
     this.http
       .patch(
-        environment.firebaseApiUrl + `orders/${this.orderId}.json`,
+        process.env.NG_APP_FIREBASEAPIURL + `orders/${this.orderId}.json`,
         {
           isPaid: true,
           cart: {
@@ -166,7 +166,7 @@ export class PaymentComponent {
         }
       )
       .subscribe((response) => {
-        window.location.href = `http://localhost:4200/ref?ok=${response.ok}&refID=${response.body['refId']}`;
+        window.location.href = `https://ng-shop-farzin.netlify.app/ref?ok=${response.ok}&refID=${response.body['refId']}`;
       });
   }
 
