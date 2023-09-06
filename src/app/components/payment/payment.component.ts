@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { OrderService } from 'src/app/shared/services/order.service';
 import { Subscription, map } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment.development';
 import { Order } from 'src/app/shared/models/order.model';
 import { LoadingComponent } from 'src/app/shared/components/loading/loading.component';
 
