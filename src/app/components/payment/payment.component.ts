@@ -156,7 +156,7 @@ export class PaymentComponent {
       }
     }
 
-    if (this.order?.cart.length > 0) {
+    if (this.order !== null) {
       this.http
         .patch(
           process.env.NG_APP_FIREBASEAPIURL + `orders/${this.orderId}.json`,

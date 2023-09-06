@@ -1,14 +1,15 @@
 import { CartItem } from './cartItem.model';
 
-export interface cart {
-  id: string;
-  price: number;
-  items: CartItem[];
-  amount: number;
-  isPaid: boolean;
-  expirationDate: Date;
+export class cart {
+  constructor(
+    public id: string,
+    public price: number,
+    public items: CartItem[],
+    public amount: number,
+    public isPaid: boolean,
+    public expirationDate: Date
+  ) {}
 }
-
 export class Order {
   constructor(
     public id: string,
