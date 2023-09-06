@@ -38,6 +38,27 @@ export class PaymentComponent {
 
   ngOnInit() {
     this.isLoading = true;
+
+    this.generateKeypad();
+    this.generateCaptcha();
+
+    this.orderIDSub = this.orderService.orderId_Subject
+      .pipe(
+        map((id) => {
+          this.isLoading = true;
+          return id;
+        })
+      )
+      .subscribe((id) => {
+        this.orderId = id;
+        this.getOrder(this.orderId);
+      });
+    this.timeoutSub = setTimeout(() => {
+      this.isLoading = false;
+    }, 4000);
+  }
+
+  generateKeypad() {
     this.keyPadChar = '0123456789';
     this.keyPad = '';
     for (let i = 0; this.keyPad.length < 10; i++) {
@@ -45,6 +66,9 @@ export class PaymentComponent {
       if (this.keyPad.indexOf(this.rand.toString()) > -1) continue;
       this.keyPad += this.keyPadChar.substring(this.rand, this.rand + 1);
     }
+  }
+
+  generateCaptcha() {
     let result = '';
     const characters =
       '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -55,23 +79,6 @@ export class PaymentComponent {
       counter += 1;
     }
     this.captchaChar = result;
-    this.orderIDSub = this.orderService.orderId_Subject
-      .pipe(
-        map((id) => {
-          this.isLoading = true;
-          return id;
-        })
-      )
-      .subscribe((id) => {
-        this.orderId = id;
-        console.log(id);
-        console.log(this.orderId);
-        this.getOrder(this.orderId);
-        console.log(this.order);
-      });
-    this.timeoutSub = setTimeout(() => {
-      this.isLoading = false;
-    }, 4000);
   }
 
   getOrder(id: string) {
@@ -80,7 +87,6 @@ export class PaymentComponent {
         observe: 'response',
       })
       .subscribe((response) => {
-        console.log(response.body);
         this.order = response.body;
       });
   }
@@ -90,15 +96,16 @@ export class PaymentComponent {
   }
 
   addCVV2(key: number) {
-    if (this.cartCVV2.length >= 4) {
+    if (this.cartCVV2?.length >= 4) {
       return;
     } else {
+      if (this.cartCVV2 === null) this.cartCVV2 = '';
       this.cartCVV2 = this.cartCVV2 + key;
     }
   }
 
   removeLastDigitFromCVV2() {
-    if (this.cartCVV2.length === 0) {
+    if (this.cartCVV2?.length === 0) {
       return;
     } else {
       this.cartCVV2 = this.cartCVV2.slice(0, -1);
@@ -106,7 +113,7 @@ export class PaymentComponent {
   }
 
   removeCVV2() {
-    if (this.cartCVV2.length === 0) {
+    if (this.cartCVV2?.length === 0) {
       return;
     } else {
       this.cartCVV2 = '';
@@ -126,6 +133,8 @@ export class PaymentComponent {
         this.formData.controls['cartPassword'].reset();
         this.formData.controls['cartCVV2'].reset();
         this.enteredWrongPassword += 1;
+        this.generateKeypad();
+        this.generateCaptcha();
         alert('مقادیر خواسته شده را به درستی وارد کنید');
         return;
       } else {
@@ -140,33 +149,37 @@ export class PaymentComponent {
             }
           )
           .subscribe((response) => {
-            window.location.href = `https://ng-shop-farzin.netlify.app/ref?ok=false&orderID=${this.orderId}`;
+            this.orderId
+              ? (window.location.href = `https://ng-shop-farzin.netlify.app/ref?ok=false&orderID=${this.orderId}`)
+              : (window.location.href = `https://ng-shop-farzin.netlify.app/ref?ok=false&orderID=null`);
           });
       }
     }
 
-    this.http
-      .patch(
-        process.env.NG_APP_FIREBASEAPIURL + `orders/${this.orderId}.json`,
-        {
-          isPaid: true,
-          cart: {
-            id: this.order.cart['id'],
+    if (this.order?.cart.length > 0) {
+      this.http
+        .patch(
+          process.env.NG_APP_FIREBASEAPIURL + `orders/${this.orderId}.json`,
+          {
             isPaid: true,
-            amount: this.order.cart['amount'],
-            price: this.order.cart['price'],
-            expirationDate: this.order.cart['expirationDate'],
-            items: this.order.cart['items'],
+            cart: {
+              id: this.order.cart['id'],
+              isPaid: true,
+              amount: this.order.cart['amount'],
+              price: this.order.cart['price'],
+              expirationDate: this.order.cart['expirationDate'],
+              items: this.order.cart['items'],
+            },
+            refId: crypto.randomUUID(),
           },
-          refId: crypto.randomUUID(),
-        },
-        {
-          observe: 'response',
-        }
-      )
-      .subscribe((response) => {
-        window.location.href = `https://ng-shop-farzin.netlify.app/ref?ok=${response.ok}&orderID=${this.orderId}`;
-      });
+          {
+            observe: 'response',
+          }
+        )
+        .subscribe((response) => {
+          window.location.href = `https://ng-shop-farzin.netlify.app/ref?ok=${response.ok}&orderID=${this.orderId}`;
+        });
+    }
   }
 
   ngOnDestroy() {
