@@ -128,7 +128,7 @@ export class PaymentComponent {
       this.formData.value.cartPassword !== this.cartPassword ||
       this.formData.value.cartCVV2 !== this.cartCVV2
     ) {
-      if (this.enteredWrongPassword < 2) {
+      if (this.enteredWrongPassword < 1) {
         this.formData.controls['captcha'].reset();
         this.formData.controls['cartPassword'].reset();
         this.formData.controls['cartCVV2'].reset();
@@ -156,7 +156,7 @@ export class PaymentComponent {
       }
     }
 
-    if (this.order !== null) {
+    if (this.order !== null && this.enteredWrongPassword < 1) {
       this.http
         .patch(
           process.env.NG_APP_FIREBASEAPIURL + `orders/${this.orderId}.json`,
