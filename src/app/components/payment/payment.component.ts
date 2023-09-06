@@ -140,7 +140,7 @@ export class PaymentComponent {
             }
           )
           .subscribe((response) => {
-            window.location.href = `http://localhost:4200/ref?ok=false&refID=${response.body['refId']}`;
+            window.location.href = `https://ng-shop-farzin.netlify.app/ref?ok=false&orderID=${this.orderId}`;
           });
       }
     }
@@ -165,7 +165,7 @@ export class PaymentComponent {
         }
       )
       .subscribe((response) => {
-        window.location.href = `https://ng-shop-farzin.netlify.app/ref?ok=${response.ok}&refID=${response.body['refId']}`;
+        window.location.href = `https://ng-shop-farzin.netlify.app/ref?ok=${response.ok}&orderID=${this.orderId}`;
       });
   }
 

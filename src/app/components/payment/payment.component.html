@@ -65,7 +65,7 @@
     </div>
     <div
       *ngIf="orderId.length > 0"
-      class="card p-3 mt-3 d-flex justify-content-between flex-column flex-md-row mb-3"
+      class="card p-3 mt-3 d-flex justify-content-start gap-4 flex-column flex-md-row mb-3"
     >
       <div class="form">
         <form (ngSubmit)="onSubmit()" #form="ngForm">
@@ -223,7 +223,7 @@
         </form>
       </div>
       <div class="keypad d-none d-md-block">
-        <div class="container mt-4">
+        <div class="container me-0 mt-4">
           <div class="row gap-2">
             <div
               class="card key-item col-sm-4 align-items-center"
