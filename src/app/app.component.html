@@ -4,7 +4,7 @@
       <h5 class="d-block text-center">پرداخت اینترنتی</h5>
     </div>
     <div
-      *ngIf="orderId?.length <= 0 && isLoading === true"
+      *ngIf="((order$ | async) === null || this.orderId?.length === 0) && isLoading === true"
       class="container-fluid container-lg mb-5 mt-5"
     >
       <div class="row justify-content-center align-items-center">
@@ -12,7 +12,7 @@
       </div>
     </div>
     <div
-      *ngIf="orderId?.length <= 0 && isLoading !== true"
+      *ngIf="((order$ | async) === null || this.orderId?.length <= 0) &&  isLoading !== true"
       class="card p-3 mt-4 border border-danger bg-danger-subtle"
     >
       <p class="d-block text-center mb-0">
@@ -20,7 +20,7 @@
       </p>
     </div>
     <div
-      *ngIf="orderId?.length > 0"
+      *ngIf="(order$ | async) !== null && this.orderId?.length > 0"
       class="card d-flex flex-column justify-content-between p-3 mt-3"
     >
       <div
@@ -64,7 +64,7 @@
       </div>
     </div>
     <div
-      *ngIf="orderId?.length > 0"
+      *ngIf="(order$ | async) !== null && this.orderId?.length > 0"
       class="card p-3 mt-3 d-flex justify-content-start gap-4 flex-column flex-md-row mb-3"
     >
       <div class="form">

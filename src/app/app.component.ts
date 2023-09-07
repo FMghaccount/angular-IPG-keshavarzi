@@ -3,8 +3,8 @@ import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgForm } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { Subscription, switchMap } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { Subscription, switchMap, Observable, of, catchError, map } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Order } from 'src/app/shared/models/order.model';
 import { LoadingComponent } from 'src/app/shared/components/loading/loading.component';
 
@@ -17,6 +17,7 @@ import { LoadingComponent } from 'src/app/shared/components/loading/loading.comp
 })
 export class AppComponent {
   order: Order;
+  order$: Observable<Order>;
   orderId: string = '';
   orderIDSub: Subscription;
   @ViewChild('form') formData: NgForm;
@@ -48,11 +49,24 @@ export class AppComponent {
         switchMap((params: Params) => {
           this.isLoading = true;
           this.orderId = params['orderId'];
-          return this.getOrder(params['orderId']);
+          if (
+            params['orderId'] === undefined ||
+            params['orderId'] === null ||
+            params['orderId'] === ''
+          ) {
+            return of(null);
+          } else return this.getOrder(params['orderId']);
         })
       )
       .subscribe((order) => {
-        this.order = order.body;
+        console.log(order);
+        if (order !== null) {
+          this.order = order.body;
+          this.order$ = of(order.body);
+        } else {
+          this.order = null;
+          this.order$ = of(null);
+        }
       });
     this.timeoutSub = setTimeout(() => {
       this.isLoading = false;
@@ -83,12 +97,20 @@ export class AppComponent {
   }
 
   getOrder(id: string) {
-    return this.http.get<Order>(
-      process.env.NG_APP_FIREBASEAPIURL + `orders/${id}.json`,
-      {
+    return this.http
+      .get<Order>(process.env.NG_APP_FIREBASEAPIURL + `orders/${id}.json`, {
         observe: 'response',
-      }
-    );
+      })
+      .pipe(
+        map((response) => {
+          console.log(response);
+          return response;
+        }),
+        catchError((error: HttpErrorResponse) => {
+          // console.log(error);
+          return of((this.order$ = null));
+        })
+      );
   }
 
   getPassword() {
