@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OrderService {
-  orderId_Subject = new Subject<string>();
+  orderId_Subject = new BehaviorSubject<string>('');
 
   constructor() {}
 }

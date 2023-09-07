@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NgForm } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from 'src/app/shared/services/order.service';
-import { Subscription, map } from 'rxjs';
+import { Subscription, map, switchMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Order } from 'src/app/shared/models/order.model';
 import { LoadingComponent } from 'src/app/shared/components/loading/loading.component';
@@ -30,28 +30,29 @@ export class PaymentComponent {
   keyPad: String;
   captcha: String;
   rand: number;
-  isLoading: boolean = false;
+  isLoading: boolean = true;
   timeoutSub;
   enteredWrongPassword: number = -1;
 
   constructor(private orderService: OrderService, private http: HttpClient) {}
 
   ngOnInit() {
-    this.isLoading = true;
-
     this.generateKeypad();
     this.generateCaptcha();
 
     this.orderIDSub = this.orderService.orderId_Subject
       .pipe(
-        map((id) => {
+        switchMap((id) => {
           this.isLoading = true;
-          return id;
+          this.orderId = id;
+          return this.getOrder(id);
+        }),
+        map((order) => {
+          return order;
         })
       )
-      .subscribe((id) => {
-        this.orderId = id;
-        this.getOrder(this.orderId);
+      .subscribe((order) => {
+        this.order = order.body;
       });
     this.timeoutSub = setTimeout(() => {
       this.isLoading = false;
@@ -82,13 +83,12 @@ export class PaymentComponent {
   }
 
   getOrder(id: string) {
-    this.http
-      .get<Order>(process.env.NG_APP_FIREBASEAPIURL + `orders/${id}.json`, {
+    return this.http.get<Order>(
+      process.env.NG_APP_FIREBASEAPIURL + `orders/${id}.json`,
+      {
         observe: 'response',
-      })
-      .subscribe((response) => {
-        this.order = response.body;
-      });
+      }
+    );
   }
 
   getPassword() {
@@ -119,8 +119,6 @@ export class PaymentComponent {
       this.cartCVV2 = '';
     }
   }
-
-  checkValidity(event: InputEvent) {}
 
   onSubmit() {
     if (

@@ -1,0 +1,59 @@
+.list-unstyled li:not(:first-child) {
+  margin-top: 1rem;
+}
+
+.img {
+  border-radius: 10px;
+}
+
+/* .password{
+  height: 35px;
+} */
+
+.password button {
+  font-size: 14px;
+}
+
+input.ng-invalid.ng-touched {
+  border: 1px solid #da1c1c;
+  background-color: #ffeeee;
+}
+
+.key-item {
+  width: 15px;
+}
+
+.keypad .container {
+  width: 35%;
+  margin: auto;
+  margin-top: 125px !important;
+}
+
+[disabled] {
+  cursor: not-allowed;
+}
+
+.captcha-chars p {
+  font-family: "Comic Sans MS", cursive, sans-serif;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 2em;
+  padding: 3px;
+  border-radius: 5px;
+  text-decoration: line-through;
+  color: #a0a0a0;
+  background-color: #0c0c0c;
+  display: block;
+  text-align: center;
+  font-size: 4rem;
+}
+
+app-loading {
+  text-align: center;
+}
+
+.captcha, .captcha-chars {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none;
+}

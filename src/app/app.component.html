@@ -1,1 +1,280 @@
-<router-outlet></router-outlet>
+<div class="container-fluid container-xl">
+  <div class="row col-12 align-items-center m-auto justify-content-center">
+    <div class="card p-3 mt-3">
+      <h5 class="d-block text-center">پرداخت اینترنتی</h5>
+    </div>
+    <div
+      *ngIf="orderId?.length <= 0 && isLoading === true"
+      class="container-fluid container-lg mb-5 mt-5"
+    >
+      <div class="row justify-content-center align-items-center">
+        <app-loading></app-loading>
+      </div>
+    </div>
+    <div
+      *ngIf="orderId?.length <= 0 && isLoading !== true"
+      class="card p-3 mt-4 border border-danger bg-danger-subtle"
+    >
+      <p class="d-block text-center mb-0">
+        شماره ارجاع توسط سایت پذیرنده ارسال نشده است
+      </p>
+    </div>
+    <div
+      *ngIf="orderId?.length > 0"
+      class="card d-flex flex-column justify-content-between p-3 mt-3"
+    >
+      <div
+        class="d-flex gap-4 flex-column flex-md-row align-items-center m-auto justify-content-center justify-content-md-start"
+      >
+        <div class="rounded-1 logo border-1 border">
+          <a
+            href="https://ng-shop-farzin.netlify.app"
+            target="_blank"
+            class="d-block text-center"
+            ><img
+              height="150px"
+              class="p-3 img"
+              src="../../../../assets/logo3.PNG"
+          /></a>
+        </div>
+        <div>
+          <ul class="list-unstyled pe-3">
+            <li>نام پذیرنده: فروشگاه اینترنتی سبد</li>
+            <li>شماره سریال: 251819</li>
+            <li>شماره ترمینال: 251172</li>
+            <li>
+              آدرس وبسایت:
+              <a href="https://ng-shop-farzin.netlify.app" target="_blank"
+                >https://ng-shop-farzin.netlify.app</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div
+        class="d-flex flex-column mt-4 rounded-1 border-top py-3 px-3 bg-success-subtle flex-md-row justify-content-center justify-content-md-between"
+      >
+        <div></div>
+        <div class="d-flex flex-row justify-content-between gap-3">
+          <div><span>مبلغ پرداخت: </span></div>
+          <div>
+            <span class="text-success"> {{ order?.cart.price }} تومان </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      *ngIf="orderId?.length > 0"
+      class="card p-3 mt-3 d-flex justify-content-start gap-4 flex-column flex-md-row mb-3"
+    >
+      <div class="form">
+        <form (ngSubmit)="onSubmit()" #form="ngForm">
+          <div class="form-group flex-column-reverse mb-3">
+            <label class="form-label" for="cartNumber">شماره کارت</label>
+            <input
+              type="text"
+              id="cartNumber"
+              class="form-control"
+              name="cartNumber"
+              maxlength="19"
+              required
+              disabled
+              #cartNumberField="ngModel"
+              [(ngModel)]="cartNumber"
+            />
+            <p
+              class="text-danger mt-1"
+              *ngIf="!cartNumberField.valid && cartNumberField.touched"
+            >
+              شماره کارت را وارد کنید. از 1-9 و "-"
+            </p>
+            <label class="form-label mt-4" for="cartCVV2">CVV2</label>
+            <input
+              type="text"
+              id="cartCVV2"
+              maxlength="4"
+              class="form-control"
+              name="cartCVV2"
+              required
+              #cartCVV2Field="ngModel"
+              [(ngModel)]="cartCVV2"
+            />
+            <p
+              class="text-danger mt-1"
+              *ngIf="!cartCVV2Field.valid && cartCVV2Field.touched"
+            >
+              شماره CVV2 را وارد کنید
+            </p>
+            <div class="d-flex flex-column flex-md-row mt-2 gap-3">
+              <div>
+                <label class="form-label mt-4" for="cartExpirationMonth"
+                  >ماه انقضا</label
+                >
+                <input
+                  type="number"
+                  max="12"
+                  min="1"
+                  maxlength="2"
+                  id="cartExpirationMonth"
+                  class="form-control"
+                  name="cartExpirationMonth"
+                  required
+                  disabled
+                  #cartExpirationMonthField="ngModel"
+                  [(ngModel)]="cartExpirationMonth"
+                />
+                <p
+                  class="text-danger mt-1"
+                  *ngIf="
+                    !cartExpirationMonthField.valid &&
+                    cartExpirationMonthField.touched
+                  "
+                >
+                  ماه انقضا را وارد کنید
+                </p>
+              </div>
+              <div>
+                <label class="form-label mt-4" for="cartExpirationYear"
+                  >سال انقضا</label
+                >
+                <input
+                  type="number"
+                  max="12"
+                  min="1"
+                  maxlength="2"
+                  id="cartExpirationYear"
+                  class="form-control"
+                  name="cartExpirationYear"
+                  required
+                  disabled
+                  #cartExpirationYearField="ngModel"
+                  [(ngModel)]="cartExpirationYear"
+                />
+                <p
+                  class="text-danger mt-1"
+                  *ngIf="
+                    !cartExpirationYearField.valid &&
+                    cartExpirationYearField.touched
+                  "
+                >
+                  سال انقضا را وارد کنید
+                </p>
+              </div>
+            </div>
+            <div
+              class="password d-flex flex-column align-items-center flex-sm-row mt-3 gap-3"
+            >
+              <label class="form-label mt-3" for="username"
+                >رمز یکبار مصرف</label
+              >
+              <div
+                class="password d-flex w-100 flex-fill flex-column flex-md-row mt-2 gap-3"
+              >
+                <input
+                  type="password"
+                  id="cartPassword"
+                  class="form-control col-3 flex-fill"
+                  name="cartPassword"
+                  required
+                  #cartPasswordField="ngModel"
+                  [(ngModel)]="cartPassword"
+                />
+                <button
+                  (click)="getPassword()"
+                  type="button"
+                  class="flex-fill w-100 col-7 btn btn-primary"
+                >
+                  دریافت رمز
+                </button>
+              </div>
+            </div>
+            <p
+              class="text-danger mt-1"
+              *ngIf="!cartPasswordField.valid && cartPasswordField.touched"
+            >
+              رمز یکبار مصرف را وارد کنید
+            </p>
+          </div>
+          <div class="captcha">
+            <div class="captcha-chars">
+              <p>{{ captchaChar }}</p>
+            </div>
+            <div class="captcha-input">
+              <input
+                type="text"
+                id="captcha"
+                class="form-control"
+                name="captcha"
+                maxlength="6"
+                required
+                #cartNumberField="ngModel"
+                [(ngModel)]="captcha"
+              />
+            </div>
+          </div>
+          <button
+            class="btn btn-success mt-4 w-50 m-auto"
+            type="submit"
+            [disabled]="!form.valid"
+          >
+            پرداخت
+          </button>
+        </form>
+      </div>
+      <div class="keypad d-none d-md-block">
+        <div class="container me-0 mt-4">
+          <div class="row gap-2">
+            <div
+              class="card key-item col-sm-4 align-items-center"
+              *ngFor="let key of keyPad.split('')"
+              style="cursor: pointer"
+              (click)="addCVV2(key)"
+            >
+              <span class="d-block text-center">{{ key }}</span>
+            </div>
+            <div
+              class="card key-item col-sm-4 justify-content-center btn btn-danger align-items-center"
+              (click)="removeLastDigitFromCVV2()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-backspace"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M5.83 5.146a.5.5 0 0 0 0 .708L7.975 8l-2.147 2.146a.5.5 0 0 0 .707.708l2.147-2.147 2.146 2.147a.5.5 0 0 0 .707-.708L9.39 8l2.146-2.146a.5.5 0 0 0-.707-.708L8.683 7.293 6.536 5.146a.5.5 0 0 0-.707 0z"
+                />
+                <path
+                  d="M13.683 1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7.08a2 2 0 0 1-1.519-.698L.241 8.65a1 1 0 0 1 0-1.302L5.084 1.7A2 2 0 0 1 6.603 1h7.08zm-7.08 1a1 1 0 0 0-.76.35L1 8l4.844 5.65a1 1 0 0 0 .759.35h7.08a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1h-7.08z"
+                />
+              </svg>
+            </div>
+            <div
+              class="card key-item col-sm-4 justify-content-center btn btn-danger align-items-center"
+              (click)="removeCVV2()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-trash"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"
+                />
+                <path
+                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
